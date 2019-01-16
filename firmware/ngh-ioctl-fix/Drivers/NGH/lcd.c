@@ -21,15 +21,17 @@ void _spi_stop() {
 
 void _spi_send(uint8_t byte) {
 #define __setpin(p, v) HAL_GPIO_WritePin(p, (v) ? GPIO_PIN_SET : GPIO_PIN_RESET)
+	__setpin(SDA_PIN, dcs);
 	__setpin(SCK_PIN, 0);
-	__setpin(SDA_PIN, dcs);
+	HAL_Delay(1);
 	__setpin(SCK_PIN, 1);
-	__setpin(SDA_PIN, dcs);
+	HAL_Delay(1);
 	for (uint8_t i = 0; i < 8; i++) {
+		__setpin(SDA_PIN, byte & (0x80 >> i));
 		__setpin(SCK_PIN, 0);
-		__setpin(SDA_PIN, byte & (0x80 >> i));
+		HAL_Delay(1);
 		__setpin(SCK_PIN, 1);
-		__setpin(SDA_PIN, byte & (0x80 >> i));
+		HAL_Delay(1);
 	}
 #undef __setpin
 }
@@ -47,7 +49,9 @@ void LCDInit() {
 			_spi_start();
 			_spi_dcs(0);
 			_spi_send(r & 0xFF);
+			_spi_stop();
 
+			_spi_start();
 			_spi_dcs(1);
 			for (uint16_t d = 0; d < len; d++) {
 				x = _regValues[i++];

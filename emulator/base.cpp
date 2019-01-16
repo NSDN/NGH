@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <ctime>
 
+#include <string>
+
 void processEvent();
 uint32_t colorBuf;
 struct {
@@ -49,13 +51,7 @@ void delay(uint32_t ms) {
         processEvent();
 }
 
-void pixel(uint16_t x, uint16_t y) {
-	DxLib::DrawBox(
-        x * LCD_SCALE, y * LCD_SCALE,
-        (x + 1) * LCD_SCALE, (y + 1) * LCD_SCALE,
-        colorBuf, 1
-    );
-}
+#define pixel(x, y) DxLib::DrawPixel((x), (y), colorBuf)
 
 void color(uint32_t color) {
     colorBuf = color;
@@ -74,6 +70,7 @@ void write(uint32_t data) {
         LCD_PTR += 1;
     } else LCD_PTR = 0;
     DxLib::ScreenFlip();
+    processEvent();
 }
 
 void writes(uint32_t* data, uint32_t len) {
@@ -84,6 +81,7 @@ void writes(uint32_t* data, uint32_t len) {
         if (LCD_PTR >= len) break;
     }
     DxLib::ScreenFlip();
+    processEvent();
 }
 
 void flash(uint32_t data, uint32_t n) {
@@ -94,6 +92,22 @@ void flash(uint32_t data, uint32_t n) {
         if (LCD_PTR >= n) break;
     }
     DxLib::ScreenFlip();
+    processEvent();
+}
+
+#undef pixel
+
+void playMusic(std::string path) {
+    TCHAR* buff = (TCHAR*) malloc((path.length() + 1) * sizeof(TCHAR));
+    for (int i = 0; i < path.length(); i++)
+        buff[i] = path[i];
+    buff[path.length()] = '\0';
+    DxLib::PlayMusic(buff, DX_PLAYTYPE_LOOP);
+    free(buff);
+}
+
+void stopMusic() {
+    DxLib::StopMusic();
 }
 
 void initBase() {
@@ -102,6 +116,7 @@ void initBase() {
     DxLib::ChangeWindowMode(1);
     DxLib::SetWindowStyleMode(5);
 
+    DxLib::SetFullScreenScalingMode(DX_FSSCALINGMODE_NEAREST);
     DxLib::SetGraphMode(LCD_WIDTH, LCD_HEIGHT, 32);
     DxLib::SetWindowSize(LCD_WIDTH, LCD_HEIGHT);
     DxLib::SetDrawScreen(DX_SCREEN_BACK);
@@ -119,7 +134,6 @@ void resizeWindow(uint16_t scale) {
     int maxW = 0, maxH = 0;
     DxLib::GetDisplayMaxResolution(&maxW, &maxH);
     int width = LCD_WIDTH * LCD_SCALE, height = LCD_HEIGHT * LCD_SCALE;
-    DxLib::SetGraphMode(width, height, 32);
     DxLib::SetWindowSize(width, height);
     DxLib::SetWindowPosition((maxW - width) / 2, (maxH - height) / 2);
 }

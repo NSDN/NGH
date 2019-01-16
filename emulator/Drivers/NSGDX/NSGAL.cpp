@@ -53,6 +53,11 @@ NEXT:
 
 #define __GREG_NRO(n) (regGroup[n].readOnly = false)
 
+#ifdef NSGDX_IS_EMU
+extern void playMusic(std::string path);
+extern void stopMusic();
+#endif
+
 namespace NSGDX {
 
     void NSGDX::loadNSGAL() {
@@ -110,6 +115,17 @@ namespace NSGDX {
                     regGroup[2] = nowScene.m[reg];
                     __GREG_NRO(0); __GREG_NRO(1); __GREG_NRO(2);
                     funcList["eval"](&nsgal.m[_back], nullptr);
+                }
+
+                //Play BGM
+                reg.s = "bgmPath";
+                if (nowScene.m.count(reg) != 0) {
+                    Register r = nowScene.m[reg];
+                    string path = r.s.substr(r.sp);
+                    stopMusic();
+                    playMusic(path);
+                } else {
+                    stopMusic();
                 }
 
                 //Draw icon
@@ -206,7 +222,10 @@ namespace NSGDX {
                             val = tmp.n.i;
                             reg.s = "f8"; funcList["key"](&tmp, &reg);
                             val += tmp.n.i;
-                            if (val > 1) return Result::RES_OK;
+                            if (val > 1) {
+                                stopMusic();
+                                return Result::RES_OK;
+                            }
 
                             regGroup[0] = nsgal.m[_font];
                             regGroup[1].type = RegType::REG_INT;
@@ -256,9 +275,10 @@ namespace NSGDX {
                                 tmp.n.i = ptrPos;
                                 reg.s = "textJump";
                                 nowScene = txt.m[tmp].m[reg];
-                                if (nowScene.s == "__exit")
+                                if (nowScene.s == "__exit"){
+                                    stopMusic();
                                     return Result::RES_OK;
-                                else if (nowScene.s == "__this")
+                                } else if (nowScene.s == "__this")
                                     continue;
                                 else break;
                             }
@@ -528,6 +548,17 @@ namespace NSGDX {
             reg.s = "backHeight"; _scene.m[reg] = regGroup[1];
             return Result::RES_OK;
         };
+
+    #ifdef NSGDX_IS_EMU
+        funcList["gal.scene.bgm"] = $OP_{
+            if (dst == nullptr) return Result::RES_ERR;
+            if (src != nullptr) return Result::RES_ERR;
+            if (dst->type != RegType::REG_STR) return Result::RES_ERR;
+            Register reg; reg.type = RegType::REG_STR;
+            reg.s = "bgmPath"; _scene.m[reg] = *dst;
+            return Result::RES_OK;
+        };
+    #endif
 
         funcList["gal.scene.icon.begin"] = $OP_{
             if (dst != nullptr) return Result::RES_ERR;

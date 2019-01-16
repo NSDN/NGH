@@ -197,14 +197,17 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   SDRAM_Init(&hsdram1);
+  __HAL_LTDC_DISABLE(&hltdc);
   HAL_TIM_Base_Start_IT(&htim16);
   HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, GPIO_PIN_RESET);
   HAL_Delay(500);
   HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, GPIO_PIN_SET);
+  HAL_Delay(3000);
+  __HAL_LTDC_ENABLE(&hltdc);
 
-  fillByDMA2D(0xFFFFFF, 480, 480);
+  fillByDMA2D(0xFFFFFF, 854, 480);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -303,7 +306,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PLL3.PLL3N = 96;
   PeriphClkInitStruct.PLL3.PLL3P = 2;
   PeriphClkInitStruct.PLL3.PLL3Q = 4;
-  PeriphClkInitStruct.PLL3.PLL3R = 6;
+  PeriphClkInitStruct.PLL3.PLL3R = 12;
   PeriphClkInitStruct.PLL3.PLL3RGE = RCC_PLL3VCIRANGE_1;
   PeriphClkInitStruct.PLL3.PLL3VCOSEL = RCC_PLL3VCOWIDE;
   PeriphClkInitStruct.PLL3.PLL3FRACN = 0;
@@ -320,7 +323,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_PLL1QCLK, RCC_MCODIV_10);
 }
 
 /**
@@ -340,7 +342,7 @@ static void MX_DMA2D_Init(void)
   /* USER CODE END DMA2D_Init 1 */
   hdma2d.Instance = DMA2D;
   hdma2d.Init.Mode = DMA2D_R2M;
-  hdma2d.Init.ColorMode = DMA2D_OUTPUT_ARGB8888;
+  hdma2d.Init.ColorMode = DMA2D_OUTPUT_RGB888;
   hdma2d.Init.OutputOffset = 0;
   if (HAL_DMA2D_Init(&hdma2d) != HAL_OK)
   {
@@ -439,11 +441,11 @@ static void MX_LTDC_Init(void)
   pLayerCfg.WindowX1 = 854;
   pLayerCfg.WindowY0 = 0;
   pLayerCfg.WindowY1 = 480;
-  pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
+  pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_RGB888;
   pLayerCfg.Alpha = 255;
   pLayerCfg.Alpha0 = 0;
-  pLayerCfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_PAxCA;
-  pLayerCfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_PAxCA;
+  pLayerCfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_CA;
+  pLayerCfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_CA;
   pLayerCfg.FBStartAdress = 0xC0000000;
   pLayerCfg.ImageWidth = 854;
   pLayerCfg.ImageHeight = 480;
@@ -869,14 +871,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(SDMMC1_INS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PA8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : F030_INT_Pin F303_INT_Pin */
   GPIO_InitStruct.Pin = F030_INT_Pin|F303_INT_Pin;
