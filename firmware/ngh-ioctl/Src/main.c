@@ -43,7 +43,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -132,6 +132,13 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_GPIO_WritePin(CTS_BLK_GPIO_Port, CTS_BLK_Pin, GPIO_PIN_SET);
+  HAL_Delay(50);
+  HAL_GPIO_WritePin(CTS_BLK_GPIO_Port, CTS_BLK_Pin, GPIO_PIN_RESET);
+  HAL_Delay(50);
+  HAL_GPIO_WritePin(CTS_BLK_GPIO_Port, CTS_BLK_Pin, GPIO_PIN_SET);
+  HAL_Delay(500);
+  LCDInit();
+  HAL_Delay(50);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -357,13 +364,16 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(MAIN_INT_GPIO_Port, MAIN_INT_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, CTS_BLK_Pin|SYS_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, CTS_BLK_Pin|CTS_NCS_Pin|CTS_SDI_Pin|CTS_SCK_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, PAD_L_Pin|PAD_R_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(CTS_RST_GPIO_Port, CTS_RST_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(SYS_LED_GPIO_Port, SYS_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : MAIN_INT_Pin */
   GPIO_InitStruct.Pin = MAIN_INT_Pin;
@@ -372,8 +382,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(MAIN_INT_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CTS_BLK_Pin SYS_LED_Pin */
-  GPIO_InitStruct.Pin = CTS_BLK_Pin|SYS_LED_Pin;
+  /*Configure GPIO pins : CTS_BLK_Pin CTS_NCS_Pin CTS_SDI_Pin CTS_SCK_Pin 
+                           SYS_LED_Pin */
+  GPIO_InitStruct.Pin = CTS_BLK_Pin|CTS_NCS_Pin|CTS_SDI_Pin|CTS_SCK_Pin 
+                          |SYS_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;

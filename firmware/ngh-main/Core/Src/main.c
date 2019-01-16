@@ -197,17 +197,19 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   SDRAM_Init(&hsdram1);
-  __HAL_LTDC_DISABLE(&hltdc);
   HAL_TIM_Base_Start_IT(&htim16);
-  HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, GPIO_PIN_RESET);
-  HAL_Delay(500);
-  HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, GPIO_PIN_SET);
-  HAL_Delay(3000);
-  __HAL_LTDC_ENABLE(&hltdc);
 
-  fillByDMA2D(0xFFFFFF, 854, 480);
+  HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, GPIO_PIN_RESET);
+  HAL_Delay(50);
+  HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, GPIO_PIN_SET);
+
+  HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, GPIO_PIN_RESET);
+  HAL_Delay(50);
+  HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, GPIO_PIN_SET);
+
+  HAL_Delay(500);
+
+  fillByDMA2D(0xFF0000, 854, 480);
   /* USER CODE END 2 */
 
   /* Infinite loop */

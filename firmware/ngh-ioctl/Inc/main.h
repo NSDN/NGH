@@ -82,6 +82,12 @@ void Error_Handler(void);
 #define MAIN_INT_GPIO_Port GPIOC
 #define CTS_BLK_Pin GPIO_PIN_0
 #define CTS_BLK_GPIO_Port GPIOA
+#define CTS_NCS_Pin GPIO_PIN_1
+#define CTS_NCS_GPIO_Port GPIOA
+#define CTS_SDI_Pin GPIO_PIN_2
+#define CTS_SDI_GPIO_Port GPIOA
+#define CTS_SCK_Pin GPIO_PIN_3
+#define CTS_SCK_GPIO_Port GPIOA
 #define KEY_F1_Pin GPIO_PIN_0
 #define KEY_F1_GPIO_Port GPIOB
 #define KEY_F2_Pin GPIO_PIN_1
