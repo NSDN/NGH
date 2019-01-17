@@ -69,14 +69,14 @@ void ngh_setup() {
 	print("\n");
 	delay(1000);
 
-	print("Re-configure NSDN(C) 99-8B(R) chip...\n");
-	print("Reset NSDN(C) 99-8B(R) chip...\n");
+	print("Reset NSDN(C) NGH-IOCTL chip...\n");
+	print("Reset NSDN(C) NGH-AUDIO chip...\n");
 	print("\n");
 	delay(1000);
 
 	print("Test SDRAM chip...\n");
 	__IO uint16_t* ptr = (uint16_t*) SDRAM_ADDR;
-	uint32_t gramOffset = 854 * 480 * 3;
+	uint32_t gramOffset = 854 * 480 * 4;
 	uint32_t intOffset = 0x32, strOffset = 0x64;
 	*(ptr + gramOffset + intOffset) = 0x3232;
 	strcpy((char*) (ptr + gramOffset + strOffset), "Hello, world!\0");

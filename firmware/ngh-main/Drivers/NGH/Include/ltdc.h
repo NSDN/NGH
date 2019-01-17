@@ -6,9 +6,9 @@
 #include "dram.h"
 
 #define GBUF_ADDR SDRAM_ADDR
-#define GBUF_WIDTH 1024
-#define GBUF_HEIGH 600
-#define GBUF_SIZE (GBUF_WIDTH * GBUF_HEIGH * 2)
+#define GBUF_WIDTH 854
+#define GBUF_HEIGH 480
+#define GBUF_SIZE (GBUF_WIDTH * GBUF_HEIGH * 4)
 
 void pos(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void write(uint32_t data);
