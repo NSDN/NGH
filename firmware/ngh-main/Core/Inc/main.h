@@ -92,6 +92,7 @@ void Error_Handler(void);
 #define F030_RST_GPIO_Port GPIOE
 #define EXT_RST_Pin GPIO_PIN_13
 #define EXT_RST_GPIO_Port GPIOC
+#define EXT_RST_EXTI_IRQn EXTI15_10_IRQn
 #define F303_RST_Pin GPIO_PIN_7
 #define F303_RST_GPIO_Port GPIOF
 #define F303_SCS_Pin GPIO_PIN_0

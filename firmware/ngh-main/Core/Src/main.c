@@ -58,6 +58,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "dram.h"
+
+#include "ngh_bios.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -126,12 +128,22 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == GPIO_PIN_13) {
+		GPIO_PinState state = HAL_GPIO_ReadPin(EXT_RST_GPIO_Port, EXT_RST_Pin);
+		HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, state);
+		HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, state);
+	}
+}
+
 __IO uint32_t _cnt = 0, _max = 5000;
-void TIM16_IRQ_Callback() {
-	if (_cnt < _max) _cnt += 1;
-	else {
-		_cnt = 0;
-		HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim == &htim16) {
+		if (_cnt < _max) _cnt += 1;
+		else {
+			_cnt = 0;
+			HAL_GPIO_TogglePin(SYS_LED_GPIO_Port, SYS_LED_Pin);
+		}
 	}
 }
 
@@ -209,20 +221,19 @@ int main(void)
 
   HAL_Delay(500);
 
-  fillByDMA2D(0xFF0000, 854, 480);
+  fillByDMA2D(0xFFFFFF, 854, 480);
+  HAL_Delay(500);
+
+  ngh_setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  GPIO_PinState state = HAL_GPIO_ReadPin(EXT_RST_GPIO_Port, EXT_RST_Pin);
-	  HAL_GPIO_WritePin(F030_RST_GPIO_Port, F030_RST_Pin, state);
-	  HAL_GPIO_WritePin(F303_RST_GPIO_Port, F303_RST_Pin, state);
-    /* USER CODE END WHILE */
+  while (1) ngh_loop();
+  /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-  }
+  /* USER CODE BEGIN 3 */
+
   /* USER CODE END 3 */
 }
 
@@ -308,7 +319,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PLL3.PLL3N = 96;
   PeriphClkInitStruct.PLL3.PLL3P = 2;
   PeriphClkInitStruct.PLL3.PLL3Q = 4;
-  PeriphClkInitStruct.PLL3.PLL3R = 12;
+  PeriphClkInitStruct.PLL3.PLL3R = 20;
   PeriphClkInitStruct.PLL3.PLL3RGE = RCC_PLL3VCIRANGE_1;
   PeriphClkInitStruct.PLL3.PLL3VCOSEL = RCC_PLL3VCOWIDE;
   PeriphClkInitStruct.PLL3.PLL3FRACN = 0;
@@ -426,12 +437,12 @@ static void MX_LTDC_Init(void)
   hltdc.Init.PCPolarity = LTDC_PCPOLARITY_IPC;
   hltdc.Init.HorizontalSync = 1;
   hltdc.Init.VerticalSync = 1;
-  hltdc.Init.AccumulatedHBP = 21;
-  hltdc.Init.AccumulatedVBP = 9;
-  hltdc.Init.AccumulatedActiveW = 875;
-  hltdc.Init.AccumulatedActiveH = 489;
-  hltdc.Init.TotalWidth = 895;
-  hltdc.Init.TotalHeigh = 497;
+  hltdc.Init.AccumulatedHBP = 3;
+  hltdc.Init.AccumulatedVBP = 19;
+  hltdc.Init.AccumulatedActiveW = 857;
+  hltdc.Init.AccumulatedActiveH = 499;
+  hltdc.Init.TotalWidth = 865;
+  hltdc.Init.TotalHeigh = 519;
   hltdc.Init.Backcolor.Blue = 0;
   hltdc.Init.Backcolor.Green = 0;
   hltdc.Init.Backcolor.Red = 0;
@@ -445,7 +456,7 @@ static void MX_LTDC_Init(void)
   pLayerCfg.WindowY1 = 480;
   pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_RGB888;
   pLayerCfg.Alpha = 255;
-  pLayerCfg.Alpha0 = 0;
+  pLayerCfg.Alpha0 = 255;
   pLayerCfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_CA;
   pLayerCfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_CA;
   pLayerCfg.FBStartAdress = 0xC0000000;
@@ -842,7 +853,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : EXT_RST_Pin */
   GPIO_InitStruct.Pin = EXT_RST_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(EXT_RST_GPIO_Port, &GPIO_InitStruct);
 
@@ -886,6 +897,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(SYS_LED_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 3, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 

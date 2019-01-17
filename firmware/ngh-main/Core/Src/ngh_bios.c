@@ -11,7 +11,7 @@
 #include "dram.h"
 #include "lcd.h"
 
-#define NGV_SYS_VERSION "181220"
+#define NGH_SYS_VERSION "190117"
 
 LCD* lcd;
 FILTYPE file;
@@ -54,14 +54,14 @@ void ngh_setup() {
 	delay(1000);
 
 	lcd->bitmapsc(lcd->p, lcd->p->width / 2, 140, 64, 64, getLogo());
-	lcd->printfc(lcd->p, 180, "nyagame vita");
+	lcd->printfc(lcd->p, 180, "nyagame hydro");
 	delay(1000);
 	lcd->clear(lcd->p);
 
 	lcd->font(lcd->p, Big);
 
-	print("NyaGame Vita Factory System\n");
-	print("Version: %s\n\n", NGV_SYS_VERSION);
+	print("NyaGame Hydro Factory System\n");
+	print("Version: %s\n\n", NGH_SYS_VERSION);
 	delay(1000);
 
 	/* Initialize device */
@@ -76,7 +76,7 @@ void ngh_setup() {
 
 	print("Test SDRAM chip...\n");
 	__IO uint16_t* ptr = (uint16_t*) SDRAM_ADDR;
-	uint32_t gramOffset = 1024 * 600 * 2;
+	uint32_t gramOffset = 854 * 480 * 3;
 	uint32_t intOffset = 0x32, strOffset = 0x64;
 	*(ptr + gramOffset + intOffset) = 0x3232;
 	strcpy((char*) (ptr + gramOffset + strOffset), "Hello, world!\0");
@@ -104,7 +104,7 @@ void ngh_setup() {
 		f_open(&file, path, FA_WRITE | FA_CREATE_ALWAYS);
 		f_printf(&file, "NyaGame Hydro v1.0 with STM32H743ZIT6 and STM32F0/F1/F3 Co-CPUs\n");
 		f_printf(&file, "by NyaSama Developer Network\n");
-		f_printf(&file, "Firmware Version: %s\n", NGV_SYS_VERSION);
+		f_printf(&file, "Firmware Version: %s\n", NGH_SYS_VERSION);
 		f_close(&file);
 		print("Test file system... OK\n");
 		FS_OK = 1;
